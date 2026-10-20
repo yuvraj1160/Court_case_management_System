@@ -206,12 +206,13 @@
                 <div class="data-section" style="width: 100%;">
                     <h2>🛡️ Security Audit Logs (Live)</h2>
                     <table>
-                        <tr><th>Log ID</th><th>Action</th><th>Time</th></tr>
+                        <tr><th>Log ID</th><th>Clerk / User</th><th>Action</th><th>Time</th></tr>
                         {% for log in audit_logs %}
                         <tr>
                             <td>{{ log[0] }}</td>
-                            <td>{{ log[1] }}</td>
+                            <td>{{ log[1] or 'System' }}</td>
                             <td>{{ log[2] }}</td>
+                            <td>{{ log[3] }}</td>
                         </tr>
                         {% endfor %}
                     </table>

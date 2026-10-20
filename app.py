@@ -58,7 +58,7 @@ def index():
         hearings = cursor.fetchall()
         
     if role == 'admin':
-        cursor.execute("SELECT log_id, action_type, changed_at::time FROM Audit_Logs ORDER BY changed_at DESC LIMIT 5;")
+        cursor.execute("SELECT log_id, username, action_type, changed_at::time FROM Audit_Logs ORDER BY changed_at DESC LIMIT 5;")
         audit_logs = cursor.fetchall()
         
     cursor.close()
@@ -78,10 +78,17 @@ def add_case():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO Cases (case_number, status, filing_date) VALUES (%s, %s, %s)", (case_number, status, filing_date))
-        cursor.execute("INSERT INTO Audit_Logs (action_type) VALUES (%s)", (f"Added New Case: {case_number}",))
+        # Insert case and fetch the generated case_id
+        cursor.execute("INSERT INTO Cases (case_number, status, filing_date) VALUES (%s, %s, %s) RETURNING case_id", (case_number, status, filing_date))
+        case_id = cursor.fetchone()[0]
+        
+        # Insert Audit Log
+        cursor.execute("INSERT INTO Audit_Logs (case_id, action_type, username) VALUES (%s, %s, %s)", (case_id, f"Added New Case: {case_number}", session.get('username')))
+        
         conn.commit()
+        print(f"Successfully added case {case_number}")
     except Exception as e:
+        print(f"DB Error in add_case: {e}")
         conn.rollback()
     finally:
         cursor.close()
@@ -95,15 +102,23 @@ def update_status():
         
     case_number = request.form['case_number_update']
     new_status = request.form['new_status']
-    reason = request.form['update_reason']
+    reason = request.form.get('update_reason', 'No reason provided')
     
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("UPDATE Cases SET status = %s WHERE case_number = %s", (new_status, case_number))
-        cursor.execute("INSERT INTO Audit_Logs (action_type) VALUES (%s)", (f"Updated Case {case_number} to {new_status}. Reason: {reason}",))
-        conn.commit()
+        cursor.execute("SELECT case_id FROM Cases WHERE case_number = %s", (case_number,))
+        result = cursor.fetchone()
+        if result:
+            case_id = result[0]
+            cursor.execute("UPDATE Cases SET status = %s WHERE case_number = %s", (new_status, case_number))
+            cursor.execute("INSERT INTO Audit_Logs (case_id, action_type, username) VALUES (%s, %s, %s)", (case_id, f"Updated to {new_status}. Reason: {reason}", session.get('username')))
+            conn.commit()
+            print(f"Successfully updated {case_number}")
+        else:
+            print("Case not found!")
     except Exception as e:
+        print(f"DB Error in update_status: {e}")
         conn.rollback()
     finally:
         cursor.close()
