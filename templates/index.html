@@ -2,145 +2,291 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Court Case Management System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #334155);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* Base Dark Mode */
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; color: #f8fafc; 
+            display: flex; height: 100vh; overflow: hidden;
         }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        
+        /* Left Sidebar Layout */
+        .sidebar {
+            width: 250px; background-color: #1e293b; 
+            border-right: 1px solid #334155; display: flex; flex-direction: column;
         }
-
-        header {
-            width: 100%;
-            padding: 20px 0;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-            margin-bottom: 40px;
+        .sidebar-header { padding: 22px 20px; font-size: 1.2em; font-weight: 700; border-bottom: 1px solid #334155; color: #38bdf8; letter-spacing: 0.5px;}
+        .nav-links { list-style: none; padding: 0; margin: 0; }
+        .nav-links li { border-bottom: 1px solid #334155; }
+        .nav-links a { display: block; padding: 15px 20px; color: #94a3b8; text-decoration: none; font-size: 0.95em; transition: 0.2s; font-weight: 600;}
+        .nav-links a:hover, .nav-links a.active { background-color: #0f172a; color: #e2e8f0; border-left: 4px solid #38bdf8; cursor: pointer;}
+        
+        /* Main Right Container */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        /* Top Navigation Bar */
+        .top-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; background-color: #1e293b; border-bottom: 1px solid #334155;
+            position: sticky; top: 0; z-index: 10;
         }
+        .breadcrumb { color: #94a3b8; font-size: 0.9em; }
+        .breadcrumb span { color: #f8fafc; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 20px; font-weight: 600; font-size: 0.95em;}
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; font-size: 0.85em; font-weight: 700; transition: 0.2s;}
+        .logout-btn:hover { background: #dc2626; }
+        
+        /* Dashboard Container */
+        .dashboard-area { padding: 30px; }
+        
+        /* KPI Cards Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; display: flex; flex-direction: column; transition: transform 0.2s;}
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .kpi-title { padding: 15px 20px; border-bottom: 1px solid #334155; font-size: 0.85em; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
+        .kpi-value { padding: 25px 20px; font-size: 3.5em; font-weight: 700; color: #38bdf8; margin: 0; line-height: 1;}
+        .kpi-footer { padding: 15px 20px; border-top: 1px solid #334155; }
+        .kpi-btn { display: inline-block; padding: 6px 12px; border: 1px solid #475569; border-radius: 4px; color: #cbd5e1; text-decoration: none; font-size: 0.75em; font-weight: 700; transition: 0.2s; }
+        .kpi-btn:hover { background-color: #334155; color: #f8fafc; }
 
-        h1 { margin: 0; font-weight: 600; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        /* Existing System Data Tables/Forms */
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .data-section { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px; }
+        h2 { margin: 0 0 15px 0; font-size: 1.1em; border-bottom: 1px solid #334155; padding-bottom: 10px; color: #f8fafc; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 0.9em; }
+        th { color: #94a3b8; font-weight: 600; font-size: 0.85em; text-transform: uppercase; }
+        
+        /* Status Badges */
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.8em; font-weight: 700; }
+        .status-Active { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .status-Closed { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .status-Filed { background: rgba(234, 179, 8, 0.15); color: #facc15; }
+        .status-Disposed { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .status-Adjourned { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+        
+        /* Clerk Action Forms */
+        form { margin-bottom: 20px; background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155;}
+        h3 { margin: 0 0 15px 0; font-size: 0.95em; color: #cbd5e1; text-transform: uppercase; font-weight: 600;}
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #475569; background: #1e293b; color: white; outline: none; font-family: 'Inter', sans-serif;}
+        input:focus, select:focus { border-color: #38bdf8; }
+        select option { background: #1e293b; color: white; }
+        button[type="submit"] { background: #38bdf8; color: #0f172a; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 700; font-size: 0.95em; transition: 0.2s;}
+        button[type="submit"]:hover { background: #0284c7; color: white;}
 
-        .dashboard-container {
-            display: flex;
-            gap: 30px;
-            width: 90%;
-            max-width: 1200px;
-            justify-content: center;
-            flex-wrap: wrap;
+        /* Premium Entrance Animation */
+        .animate-fade-in {
+            animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            flex: 1;
-            min-width: 400px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: translateY(15px) scale(0.99); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        
+        /* Interactive Card Hover Effects */
+        .data-section { 
+            transition: all 0.3s ease; 
         }
-
-        h2 { border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-top: 0; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+        .data-section:hover { 
+            box-shadow: 0 10px 40px rgba(56, 189, 248, 0.12); 
+            border-color: rgba(56, 189, 248, 0.5); 
+            transform: translateY(-3px); 
         }
+        
+        /* Smooth Button and Row Transitions */
+        tr { transition: background-color 0.2s ease; }
+        tr:hover { background-color: rgba(56, 189, 248, 0.05); }
 
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* JavaScript Click Ripple Effect */
+        .nav-links a, button, .logout-btn { position: relative; overflow: hidden; }
+        .ripple {
+            position: absolute; background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%; transform: translate(-50%, -50%) scale(0);
+            animation: rippleAnim 0.6s ease-out; pointer-events: none;
         }
-
-        th { background: rgba(59, 130, 246, 0.2); font-weight: 600; }
-
-        tr:hover { background: rgba(255, 255, 255, 0.05); }
-
-        .badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
+        @keyframes rippleAnim {
+            to { transform: translate(-50%, -50%) scale(4); opacity: 0; }
         }
-        .status-Active { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;}
-        .status-Closed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #f87171;}
-        .status-Filed { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #facc15;}
-        .status-Disposed { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;}
-
     </style>
 </head>
 <body>
-
-    <header>
-        <h1>⚖️ AI-Assisted Court Case Management System</h1>
-        <p>Real-time Judicial Database Dashboard</p>
-    </header>
-
-    <div class="dashboard-container">
-        <div class="glass-card">
-            <h2>📋 Latest Filed Cases</h2>
-            <table>
-                <tr>
-                    <th>Case Number</th>
-                    <th>Filing Date</th>
-                    <th>Status</th>
-                </tr>
-                {% for case in cases %}
-                <tr>
-                    <td>{{ case[0] }}</td>
-                    <td>{{ case[2] }}</td>
-                    <td><span class="badge status-{{ case[1] }}">{{ case[1] }}</span></td>
-                </tr>
-                {% endfor %}
-            </table>
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">⚖️ eCourt System</div>
+        <ul class="nav-links">
+            <li><a id="nav-dash" class="active" onclick="switchTab('dash')">Legal Dashboard</a></li>
+            {% if role == 'clerk' %}<li><a id="nav-manage" onclick="switchTab('manage')">Manage Cases</a></li>{% endif %}
+            {% if role == 'admin' %}<li><a id="nav-audit" onclick="switchTab('audit')">Audit Logs</a></li>{% endif %}
+        </ul>
+    </div>
+    
+    <!-- Right Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-nav">
+            <div class="breadcrumb">Home / <span id="breadcrumb-text">Legal Dashboard</span></div>
+            <div class="user-profile">
+                <span>{{ username | title }} ({{ role | title }})</span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
         </div>
+        
+        <div class="dashboard-area">
+            
+            <!-- DASHBOARD VIEW -->
+            <div id="dashboard-view">
 
-        <div class="glass-card">
-            <h2>📅 Upcoming Hearings (Clash-Free)</h2>
-            <table>
-                <tr>
-                    <th>Judge Name</th>
-                    <th>Case Number</th>
-                    <th>Time</th>
-                </tr>
-                {% for hearing in hearings %}
-                <tr>
-                    <td>{{ hearing[0] }}</td>
-                    <td>{{ hearing[1] }}</td>
-                    <td>{{ hearing[2] }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+                <!-- Application Data Sections -->
+                <div class="data-grid">
+                    {% if role == 'admin' or role == 'clerk' %}
+                    <div class="data-section">
+                        <h2>📋 Case Repository</h2>
+                        <table>
+                            <tr><th>Case Number</th><th>Filing Date</th><th>Status</th></tr>
+                            {% for case in cases %}
+                            <tr><td>{{ case[0] }}</td><td>{{ case[2] }}</td><td><span class="badge status-{{ case[1] }}">{{ case[1] }}</span></td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if role == 'admin' or role == 'judge' %}
+                    <div class="data-section">
+                        <h2>📅 My Docket (Judge Schedule)</h2>
+                        <table>
+                            <tr><th>Judge</th><th>Case No</th><th>Time</th><th>Date</th></tr>
+                            {% for hearing in hearings %}
+                            <tr><td>{{ hearing[0] }}</td><td>{{ hearing[1] }}</td><td>{{ hearing[2] }}</td><td>{{ hearing[3] }}</td></tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- MANAGE CASES VIEW (Clerk Only, Hidden by Default) -->
+            {% if role == 'clerk' %}
+            <div id="manage-view" style="display: none;">
+                <div class="data-section" style="width: 100%;">
+                    <h2>📝 Clerk Actions</h2>
+                    <form action="/add_case" method="POST">
+                        <h3>Add New Case</h3>
+                        <input type="text" name="case_number" placeholder="Case No (e.g. CC-2026-123)" required>
+                        <input type="date" name="filing_date" required>
+                        <select name="status">
+                            <option value="Filed">Filed</option>
+                            <option value="Active">Active</option>
+                        </select>
+                        <button type="submit">Submit New Case</button>
+                    </form>
+                    
+                    <form action="/update_status" method="POST">
+                        <h3>Update Case Status</h3>
+                        <input type="text" name="case_number_update" placeholder="Existing Case Number" required>
+                        <select name="new_status">
+                            <option value="Active">Active</option>
+                            <option value="Adjourned">Adjourned</option>
+                            <option value="Disposed">Disposed</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                        <input type="text" name="update_reason" placeholder="Reason for status change (Mandatory)" required>
+                        <button type="submit">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- AUDIT LOGS VIEW (Hidden by Default) -->
+            {% if role == 'admin' %}
+            <div id="audit-view" style="display: none;">
+                <div class="data-section" style="width: 100%;">
+                    <h2>🛡️ Security Audit Logs (Live)</h2>
+                    <table>
+                        <tr><th>Log ID</th><th>Action</th><th>Time</th></tr>
+                        {% for log in audit_logs %}
+                        <tr>
+                            <td>{{ log[0] }}</td>
+                            <td>{{ log[1] }}</td>
+                            <td>{{ log[2] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 
+    <!-- JavaScript for Tab Switching -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // JS RIPPLE EFFECT (Liquid click effect)
+            const interactiveElements = document.querySelectorAll('.nav-links a, button, .logout-btn');
+            interactiveElements.forEach(el => {
+                el.addEventListener('click', function(e) {
+                    let x = e.clientX - e.target.getBoundingClientRect().left;
+                    let y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    let ripplespan = document.createElement('span');
+                    ripplespan.style.left = x + 'px';
+                    ripplespan.style.top = y + 'px';
+                    ripplespan.classList.add('ripple');
+                    
+                    this.appendChild(ripplespan);
+                    setTimeout(() => { ripplespan.remove() }, 600);
+                });
+            });
+
+            // Initial view setup
+            const dashView = document.getElementById('dashboard-view');
+            if (dashView) dashView.style.opacity = '1';
+        });
+
+        // 3. JS OPACITY & TRANSFORM TRANSITIONS FOR TABS
+        function switchTab(tabName) {
+            const views = {
+                'dash': document.getElementById('dashboard-view'),
+                'audit': document.getElementById('audit-view'),
+                'manage': document.getElementById('manage-view')
+            };
+            const navs = {
+                'dash': document.getElementById('nav-dash'),
+                'audit': document.getElementById('nav-audit'),
+                'manage': document.getElementById('nav-manage')
+            };
+            const breadcrumb = document.getElementById('breadcrumb-text');
+            const titles = {'dash': 'Legal Dashboard', 'audit': 'Audit Logs', 'manage': 'Manage Cases'};
+
+            // Fade out all views
+            Object.keys(views).forEach(key => {
+                if (views[key]) {
+                    views[key].style.opacity = '0';
+                    views[key].style.transform = 'translateY(15px)';
+                    setTimeout(() => { views[key].style.display = 'none'; }, 200);
+                }
+                if (navs[key]) navs[key].classList.remove('active');
+            });
+
+            // Fade in target view
+            setTimeout(() => {
+                if (views[tabName]) {
+                    views[tabName].style.display = 'block';
+                    // Trigger reflow
+                    void views[tabName].offsetWidth;
+                    views[tabName].style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                    views[tabName].style.opacity = '1';
+                    views[tabName].style.transform = 'translateY(0)';
+                }
+            }, 200);
+            
+            if (navs[tabName]) navs[tabName].classList.add('active');
+            if (breadcrumb) breadcrumb.innerText = titles[tabName];
+        }
+    </script>
 </body>
 </html>
